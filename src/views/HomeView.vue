@@ -64,18 +64,14 @@ const showDetail = (cityName, status) => {
           <h1>{{ obj.name }} ({{ obj.status }})</h1>
           <button class="detail_btn" @click.stop="showDetail(obj.name, obj.status)" >상세보기</button>
           <div class="temp">현재 기온 : {{ obj.temp }}°C</div>
-          <span class="badge" :class="obj.temp >= 25 ? 'hot' : 'cold'">
-            {{ obj.temp >= 25 ? '🔥더움 (25도 이상)' : '❄️신선함 (25도 미만)' }}
-          </span>
-          <span class="badge" :class="obj.data.wind_speed >= 5.0 ? 'fast' : 'slow'">
-            {{ obj.data.wind_speed < 5.0 ? '💨약풍' : '💨강풍' }} {{ obj.data.wind_speed }} m/s
-          </span>
-          <span class="badge" :class="obj.data.humidity >= 60 ? 'humid' : 'dry'">
-            💧{{ obj.data.humidity >= 60 ? '습함' : '쾌적' }} {{ obj.data.humidity }}%
-          </span>
-          <span class="badge" :class="obj.data.clouds >= 50 ? 'cloudy' : 'clear'">
-            ☁️{{ obj.data.clouds >= 50 ? '흐림' : '맑음' }} {{ obj.data.clouds }}%
-          </span>
+          <span v-if="obj.temp >= 25" class="badge hot">🔥더움 (25도 이상)</span>
+          <span v-else class="badge cold">❄️신선함 (25도 미만)</span>
+          <span v-if="obj.data.wind_speed >= 5.0" class="badge fast">💨강풍 {{ obj.data.wind_speed }} m/s</span>
+          <span v-else class="badge slow">💨약풍 {{ obj.data.wind_speed }} m/s</span>
+          <span v-if="obj.data.humidity >= 60" class="badge humid">💧습함 {{ obj.data.humidity }}%</span>
+          <span v-else class="badge dry">💧쾌적 {{ obj.data.humidity }}%</span>
+          <span v-if="obj.data.clouds >= 50" class="badge cloudy">☁️흐림 {{ obj.data.clouds }}%</span>
+          <span v-else class="badge clear">☁️맑음 {{ obj.data.clouds }}%</span>
         </li>
       </ul>
       <div class="status_container">
