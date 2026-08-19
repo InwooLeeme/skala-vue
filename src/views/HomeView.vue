@@ -6,22 +6,46 @@ import { ref } from 'vue';
 
 const weatherList = ref([
   {
-    id : 'city_01', name : '서울', temp : 28, status : '맑음'
+    id : 'city_01', name : '서울', temp : 28, status : '맑음', 
+    data:{
+      clouds : 0,
+      humidity: 48,
+      wind_speed : 8.23, 
+    }
   },
   {
-    id : 'city_02', name : '수원', temp : 24, status : '비'
+    id : 'city_02', name : '수원', temp : 24, status : '비', 
+    data:{
+      clouds : 22,
+      humidity: 52,
+      wind_speed : 7.31,
+    }
   },
   {
-    id : 'city_03', name : '부산', temp : 26, status : '구름'
+    id : 'city_03', name : '부산', temp : 26, status : '구름', 
+    data:{
+      clouds : 10,
+      humidity: 66,
+      wind_speed : 4.2,
+    }
   },
   {
-    id: 'city_04', name : '경주', temp : 33, status : '소나기'
+    id: 'city_04', name : '경주', temp : 33, status : '소나기',
+    data:{
+      clouds : 12,
+      humidity: 73,
+      wind_speed : 3.12,
+    }
   }
 ]);
 
 const input_text = ref('');
 
 const statusMessage = ref('카드를 클릭하거나 검색해보세요.');
+
+const showDetail = (cityName, status) => {
+  window.alert(`${cityName}의 현재 날씨는 [${status}]상태입니다.`)
+}
 
 </script>
 
@@ -38,10 +62,19 @@ const statusMessage = ref('카드를 클릭하거나 검색해보세요.');
       <ul class="weather_list_container" >
         <li v-for="obj in weatherList" :key="obj.id" class = "card" @click="statusMessage = obj.name + '이 선택되었습니다.'">
           <h1>{{ obj.name }} ({{ obj.status }})</h1>
-          <button class="detail_btn">상세보기</button>
+          <button class="detail_btn" @click.stop="showDetail(obj.name, obj.status)" >상세보기</button>
           <div class="temp">현재 기온 : {{ obj.temp }}°C</div>
           <span class="badge" :class="obj.temp >= 25 ? 'hot' : 'cold'">
             {{ obj.temp >= 25 ? '🔥더움 (25도 이상)' : '❄️신선함 (25도 미만)' }}
+          </span>
+          <span class="badge" :class="obj.data.wind_speed >= 5.0 ? 'fast' : 'slow'">
+            {{ obj.data.wind_speed < 5.0 ? '💨약풍' : '💨강풍' }} {{ obj.data.wind_speed }} m/s
+          </span>
+          <span class="badge" :class="obj.data.humidity >= 60 ? 'humid' : 'dry'">
+            💧{{ obj.data.humidity >= 60 ? '습함' : '쾌적' }} {{ obj.data.humidity }}%
+          </span>
+          <span class="badge" :class="obj.data.clouds >= 50 ? 'cloudy' : 'clear'">
+            ☁️{{ obj.data.clouds >= 50 ? '흐림' : '맑음' }} {{ obj.data.clouds }}%
           </span>
         </li>
       </ul>
@@ -161,6 +194,7 @@ const statusMessage = ref('카드를 클릭하거나 검색해보세요.');
 .badge{
   display: inline-block;
   margin-top: 8px;
+  margin-right: 6px;
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 11px;
@@ -173,6 +207,30 @@ const statusMessage = ref('카드를 클릭하거나 검색해보세요.');
 
 .badge.cold{
   background-color: #4a90d9;
+}
+
+.badge.fast,
+.badge.slow{
+  background-color: transparent;
+  border: 1.5px solid #64748b;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.badge.humid,
+.badge.dry{
+  background-color: transparent;
+  border: 1.5px solid #0d9488;
+  color: #0d9488;
+  font-weight: 600;
+}
+
+.badge.cloudy,
+.badge.clear{
+  background-color: transparent;
+  border: 1.5px solid #94a3b8;
+  color: #64748b;
+  font-weight: 600;
 }
 
 .detail_btn{
@@ -198,5 +256,6 @@ const statusMessage = ref('카드를 클릭하거나 검색해보세요.');
   outline: 2px solid;
   outline-offset: 1px;
 }
+
 
 </style>
