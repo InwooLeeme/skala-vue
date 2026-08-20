@@ -1,7 +1,7 @@
 
 <script setup>
 
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 
 const weatherList = ref([
@@ -39,7 +39,9 @@ const weatherList = ref([
   }
 ]);
 
-const input_text = ref('');
+const searchQuery = ref('');
+
+const selectedCityInfo = ref(null);
 
 const statusMessage = ref('카드를 클릭하거나 검색해보세요.');
 
@@ -47,20 +49,24 @@ const showDetail = (cityName, status) => {
   window.alert(`${cityName}의 현재 날씨는 [${status}]상태입니다.`)
 }
 
+const filteredWeatherList = computed(() => {
+  return weatherList.value.filter((city) => city.name.includes(searchQuery.value));
+});
+
 </script>
 
 <template>
   <main class="practice-section">
-    <h1 class="task_title">과제 1 : 날씨(Mockup)</h1>
+    <h1 class="task_title">과제 2 : 날씨 (컴포지션)</h1>
     <div class="input_container">
       <h1>🔍도시 검색</h1>
-      <input type="text" v-model="input_text" @input="" placeholder="검색하고 싶은 도시를 입력하세요" />
-      <h3>검색 중인 도시 :{{ input_text }}</h3>
+      <input type="text" v-model="searchQuery" placeholder="검색하고 싶은 도시를 입력하세요" />
+      <h3>검색 중인 도시 :{{ searchQuery }}</h3>
     </div>
     <div class="card_container">
       <h1>지역별 날씨 현황</h1>
       <ul class="weather_list_container" >
-        <li v-for="obj in weatherList" :key="obj.id" class = "card" @click="statusMessage = obj.name + '이 선택되었습니다.'">
+        <li v-for="obj in filteredWeatherList" :key="obj.id" class = "card" @click="statusMessage = obj.name + '이 선택되었습니다.'">
           <h1>{{ obj.name }} ({{ obj.status }})</h1>
           <button class="detail_btn" @click.stop="showDetail(obj.name, obj.status)" >상세보기</button>
           <div class="temp">현재 기온 : {{ obj.temp }}°C</div>
