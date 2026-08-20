@@ -1,7 +1,7 @@
 
 <script setup>
 
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
 
 
 const weatherList = ref([
@@ -53,6 +53,23 @@ const filteredWeatherList = computed(() => {
   return weatherList.value.filter((city) => city.name.includes(searchQuery.value));
 });
 
+watch(selectedCityInfo, (newValue) => {
+  if(!newValue) return;
+  statusMessage.value = `${newValue.name}이 선택되었습니다.`;
+  console.log(`상태바 문구 변경 : ${statusMessage.value}`);
+})
+
+watchEffect(() => {
+  console.log(`검색어가 변경되었습니다 ${searchQuery.value}`);
+}); 
+
+const suggestions = computed(() => {
+  if(!searchQuery.value) return [];
+  return weatherList.value
+    .filter(city => city.name.includes(searchQuery.value))
+    .slice(0, 5);
+});
+
 </script>
 
 <template>
@@ -61,12 +78,17 @@ const filteredWeatherList = computed(() => {
     <div class="input_container">
       <h1>🔍도시 검색</h1>
       <input type="text" v-model="searchQuery" placeholder="검색하고 싶은 도시를 입력하세요" />
+      <ul v-if="suggestions.length" class="suggestion_list">
+        <li v-for="city in suggestions" :key="city.id" class="search_box">
+          {{ city.name }}
+        </li>
+      </ul>
       <h3>검색 중인 도시 :{{ searchQuery }}</h3>
     </div>
     <div class="card_container">
       <h1>지역별 날씨 현황</h1>
-      <ul class="weather_list_container" >
-        <li v-for="obj in filteredWeatherList" :key="obj.id" class = "card" @click="statusMessage = obj.name + '이 선택되었습니다.'">
+      <ul v-if="filteredWeatherList.length" class="weather_list_container" >
+        <li v-for="obj in filteredWeatherList" :key="obj.id" class = "card" @click="selectedCityInfo = obj">
           <h1>{{ obj.name }} ({{ obj.status }})</h1>
           <button class="detail_btn" @click.stop="showDetail(obj.name, obj.status)" >상세보기</button>
           <div class="temp">현재 기온 : {{ obj.temp }}°C</div>
@@ -80,6 +102,7 @@ const filteredWeatherList = computed(() => {
           <span v-else class="badge clear">☁️맑음 {{ obj.data.clouds }}%</span>
         </li>
       </ul>
+      <p v-else class="no_result">검색 결과와 일치하는 도시가 없습니다.</p>
       <div class="status_container">
         <h2 class="status_bar">{{ statusMessage }}</h2>
       </div>
@@ -259,5 +282,49 @@ const filteredWeatherList = computed(() => {
   outline-offset: 1px;
 }
 
+.search_box{
+  position: relative;
+}
+
+.suggestion_list{
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  background-color: #ffffff;
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.suggestion_list li{
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #1f2d3d;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.suggestion_list li:hover,
+.suggestion_list li.active{
+  background-color: #f4f6f8;
+}
+
+.suggestion_list li + li{
+  border-top: 1px solid #f0f2f4;
+}
+
+.no_result{
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #94a3b8;
+}
 
 </style>
