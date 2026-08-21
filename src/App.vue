@@ -1,11 +1,12 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import UnitToggler from '@/components/UnitToggler.vue'
 </script>
 
 <template>
   <div>
     <header>
-      <h1 class="task_title">과제 4 : 라우터적용</h1>
+      <h1 class="task_title">과제 5 : 스토어적용</h1>
     </header>
     <div class="wrapper">
       <nav>
@@ -13,6 +14,7 @@ import { RouterLink, RouterView } from 'vue-router'
         <RouterLink to="/stats">📊날씨 통계</RouterLink>
         <RouterLink to="/about">ℹ️서비스 소개</RouterLink>
       </nav>
+      <UnitToggler />
     </div>
     <RouterView />
   </div>
@@ -35,6 +37,9 @@ header .task_title {
 }
 
 .wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background-color: #f7f9fb;
   padding: 12px 24px;
   border-bottom: 1px solid #e3e6ea;
@@ -43,6 +48,7 @@ header .task_title {
 nav {
   display: flex;
   gap: 8px;
+  flex: 1;
   justify-content: center;
 }
 
