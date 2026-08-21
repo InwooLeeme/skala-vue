@@ -1,89 +1,69 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue';
+import { weatherStore } from '@/stores/weatherStore';
 
-const weatherList = [
-  {
-    id : 'city_01', name : '서울', temp : 28, status : '맑음',
-    data:{
-      clouds : 0,
-      humidity: 48,
-      wind_speed : 8.23,
-    }
-  },
-  {
-    id : 'city_02', name : '수원', temp : 24, status : '비',
-    data:{
-      clouds : 22,
-      humidity: 52,
-      wind_speed : 7.31,
-    }
-  },
-  {
-    id : 'city_03', name : '부산', temp : 26, status : '구름',
-    data:{
-      clouds : 10,
-      humidity: 66,
-      wind_speed : 4.2,
-    }
-  },
-  {
-    id: 'city_04', name : '경주', temp : 33, status : '소나기',
-    data:{
-      clouds : 12,
-      humidity: 73,
-      wind_speed : 3.12,
-    }
-  }
-];
+const store = weatherStore();
 
 const average = (values) => (values.reduce((sum, v) => sum + v, 0) / values.length).toFixed(1);
 
-const avgTemp = computed(() => average(weatherList.map((c) => c.temp)));
-const avgHumidity = computed(() => average(weatherList.map((c) => c.data.humidity)));
-const avgWindSpeed = computed(() => average(weatherList.map((c) => c.data.wind_speed)));
+const avgTemp = computed(() => average(store.cities.map((c) => c.temp)));
+const avgHumidity = computed(() => average(store.cities.map((c) => c.data.humidity)));
+const avgWindSpeed = computed(() => average(store.cities.map((c) => c.data.wind_speed)));
 
-const hottestCity = computed(() => weatherList.reduce((max, c) => (c.temp > max.temp ? c : max)));
-const coldestCity = computed(() => weatherList.reduce((min, c) => (c.temp < min.temp ? c : min)));
+const hottestCity = computed(() => store.cities.reduce((max, c) => (c.temp > max.temp ? c : max)));
+const coldestCity = computed(() => store.cities.reduce((min, c) => (c.temp < min.temp ? c : min)));
+
+onMounted(() => {
+  if (!store.cities.length) {
+    store.fetchAll();
+  }
+});
 </script>
 
 <template>
   <main class="practice-section">
-    <BaseDashboardCard title="📊 전체 통계 요약">
-      <div class="stat_grid">
-        <div class="stat_item">
-          <span class="stat_label">평균 기온</span>
-          <span class="stat_value">{{ avgTemp }}°C</span>
-        </div>
-        <div class="stat_item">
-          <span class="stat_label">평균 습도</span>
-          <span class="stat_value">{{ avgHumidity }}%</span>
-        </div>
-        <div class="stat_item">
-          <span class="stat_label">평균 풍속</span>
-          <span class="stat_value">{{ avgWindSpeed }} m/s</span>
-        </div>
-        <div class="stat_item">
-          <span class="stat_label">집계 도시 수</span>
-          <span class="stat_value">{{ weatherList.length }}개</span>
-        </div>
-      </div>
+    <BaseDashboardCard v-if="!store.cities.length" title="불러오는 중">
+      <p class="no_result">날씨 정보를 불러오는 중입니다...</p>
     </BaseDashboardCard>
 
-    <BaseDashboardCard title="🏆 최고 · 최저 기온 도시">
-      <div class="extreme_grid">
-        <div class="extreme_item hot">
-          <span class="extreme_label">🔥 최고 기온</span>
-          <span class="extreme_city">{{ hottestCity.name }}</span>
-          <span class="extreme_value">{{ hottestCity.temp }}°C</span>
+    <template v-else>
+      <BaseDashboardCard title="📊 전체 통계 요약">
+        <div class="stat_grid">
+          <div class="stat_item">
+            <span class="stat_label">평균 기온</span>
+            <span class="stat_value">{{ avgTemp }}°C</span>
+          </div>
+          <div class="stat_item">
+            <span class="stat_label">평균 습도</span>
+            <span class="stat_value">{{ avgHumidity }}%</span>
+          </div>
+          <div class="stat_item">
+            <span class="stat_label">평균 풍속</span>
+            <span class="stat_value">{{ avgWindSpeed }} m/s</span>
+          </div>
+          <div class="stat_item">
+            <span class="stat_label">집계 도시 수</span>
+            <span class="stat_value">{{ store.cities.length }}개</span>
+          </div>
         </div>
-        <div class="extreme_item cold">
-          <span class="extreme_label">❄️ 최저 기온</span>
-          <span class="extreme_city">{{ coldestCity.name }}</span>
-          <span class="extreme_value">{{ coldestCity.temp }}°C</span>
+      </BaseDashboardCard>
+
+      <BaseDashboardCard title="🏆 최고 · 최저 기온 도시">
+        <div class="extreme_grid">
+          <div class="extreme_item hot">
+            <span class="extreme_label">🔥 최고 기온</span>
+            <span class="extreme_city">{{ hottestCity.name }}</span>
+            <span class="extreme_value">{{ hottestCity.temp }}°C</span>
+          </div>
+          <div class="extreme_item cold">
+            <span class="extreme_label">❄️ 최저 기온</span>
+            <span class="extreme_city">{{ coldestCity.name }}</span>
+            <span class="extreme_value">{{ coldestCity.temp }}°C</span>
+          </div>
         </div>
-      </div>
-    </BaseDashboardCard>
+      </BaseDashboardCard>
+    </template>
   </main>
 </template>
 
@@ -164,5 +144,12 @@ const coldestCity = computed(() => weatherList.reduce((min, c) => (c.temp < min.
 .extreme_value{
   font-size: 13px;
   color: #555;
+}
+
+.no_result{
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #94a3b8;
 }
 </style>

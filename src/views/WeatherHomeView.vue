@@ -1,46 +1,13 @@
 <script setup>
-import { computed, ref, watch, watchEffect } from 'vue';
+import { computed, ref, watch, watchEffect, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue';
 import SearchBar from '@/components/exercise/SearchBar.vue';
 import WeatherCard from '@/components/exercise/WeatherCard.vue';
+import { weatherStore } from '@/stores/weatherStore';
 
 const router = useRouter();
-
-const weatherList = ref([
-  {
-    id : 'city_01', name : '서울', temp : 28, status : '맑음', 
-    data:{
-      clouds : 0,
-      humidity: 48,
-      wind_speed : 8.23, 
-    }
-  },
-  {
-    id : 'city_02', name : '수원', temp : 24, status : '비', 
-    data:{
-      clouds : 22,
-      humidity: 52,
-      wind_speed : 7.31,
-    }
-  },
-  {
-    id : 'city_03', name : '부산', temp : 26, status : '구름', 
-    data:{
-      clouds : 10,
-      humidity: 66,
-      wind_speed : 4.2,
-    }
-  },
-  {
-    id: 'city_04', name : '경주', temp : 33, status : '소나기',
-    data:{
-      clouds : 12,
-      humidity: 73,
-      wind_speed : 3.12,
-    }
-  }
-]);
+const store = weatherStore();
 
 const searchQuery = ref('');
 
@@ -49,7 +16,11 @@ const selectedCityInfo = ref(null);
 const statusMessage = ref('카드를 클릭하거나 검색해보세요.');
 
 const filteredWeatherList = computed(() => {
-  return weatherList.value.filter((city) => city.name.includes(searchQuery.value));
+  return store.cities.filter((city) => city.name.includes(searchQuery.value));
+});
+
+onMounted(() => {
+  store.fetchAll();
 });
 
 const showDetail = (city) => {
@@ -76,7 +47,8 @@ watch(selectedCityInfo, (newValue) => {
     </BaseDashboardCard>
 
     <BaseDashboardCard title="지역별 날씨 현황">
-      <ul v-if="filteredWeatherList.length" class="weather_list_container">
+      <p v-if="store.isLoading" class="no_result">날씨 정보를 불러오는 중입니다...</p>
+      <ul v-else-if="filteredWeatherList.length" class="weather_list_container">
         <WeatherCard
           v-for="obj in filteredWeatherList"
           :key="obj.id"

@@ -1,49 +1,17 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue';
 import { unitSymbolStore } from '@/stores/configStore';
-
-const weatherList = [
-  {
-    id : 'city_01', name : '서울', temp : 28, status : '맑음',
-    data:{
-      clouds : 0,
-      humidity: 48,
-      wind_speed : 8.23,
-    }
-  },
-  {
-    id : 'city_02', name : '수원', temp : 24, status : '비',
-    data:{
-      clouds : 22,
-      humidity: 52,
-      wind_speed : 7.31,
-    }
-  },
-  {
-    id : 'city_03', name : '부산', temp : 26, status : '구름',
-    data:{
-      clouds : 10,
-      humidity: 66,
-      wind_speed : 4.2,
-    }
-  },
-  {
-    id: 'city_04', name : '경주', temp : 33, status : '소나기',
-    data:{
-      clouds : 12,
-      humidity: 73,
-      wind_speed : 3.12,
-    }
-  }
-];
+import { weatherStore } from '@/stores/weatherStore';
 
 const route = useRoute();
 const router = useRouter();
-const city = ref(null);
 
 const configStore = unitSymbolStore();
+const store = weatherStore();
+
+const city = computed(() => store.cities.find((c) => c.id === route.params.cityId) ?? null);
 
 const displayTemp = computed(() => {
   const rawTemp = city.value.temp;
@@ -62,7 +30,9 @@ const displayWindSpeed = computed(() => {
 });
 
 onMounted(() => {
-  city.value = weatherList.find((c) => c.id === route.params.cityId) ?? null;
+  if (!store.cities.length) {
+    store.fetchAll();
+  }
 });
 </script>
 
@@ -87,6 +57,10 @@ onMounted(() => {
           <span class="detail_value">{{ city.data.clouds }}%</span>
         </div>
       </div>
+    </BaseDashboardCard>
+
+    <BaseDashboardCard v-else-if="store.isLoading" title="불러오는 중">
+      <p class="no_result">날씨 정보를 불러오는 중입니다...</p>
     </BaseDashboardCard>
 
     <BaseDashboardCard v-else title="도시를 찾을 수 없습니다">
