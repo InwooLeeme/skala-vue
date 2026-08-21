@@ -1,8 +1,11 @@
 <script setup>
 import { computed, ref, watch, watchEffect } from 'vue';
-import BaseDashboardCard from './BaseDashboardCard.vue';
-import SearchBar from './SearchBar.vue';
-import WeatherCard from './WeatherCard.vue';
+import { useRouter } from 'vue-router';
+import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue';
+import SearchBar from '@/components/exercise/SearchBar.vue';
+import WeatherCard from '@/components/exercise/WeatherCard.vue';
+
+const router = useRouter();
 
 const weatherList = ref([
   {
@@ -49,8 +52,8 @@ const filteredWeatherList = computed(() => {
   return weatherList.value.filter((city) => city.name.includes(searchQuery.value));
 });
 
-const showDetail = (cityName, status) => {
-  window.alert(`${cityName}의 현재 날씨는 [${status}]상태입니다.`)
+const showDetail = (city) => {
+  router.push(`/weather/${city.id}`);
 }
 
 watchEffect(() => {
@@ -67,7 +70,6 @@ watch(selectedCityInfo, (newValue) => {
 
 <template>
 <main class="practice-section">
-    <h1 class="task_title">과제 3 : 날씨 (컴포넌트)</h1>
     <BaseDashboardCard title="🔍도시 검색">
       <SearchBar :search-query="searchQuery" @update-query="searchQuery = $event" />
       <h3>검색 중인 도시 : {{ searchQuery }}</h3>
@@ -81,7 +83,7 @@ watch(selectedCityInfo, (newValue) => {
           :city="obj"
           :selected="selectedCityInfo?.id === obj.id"
           @select-card="selectedCityInfo = $event"
-          @click-detail="showDetail($event.name, $event.status)"
+          @click-detail="showDetail($event)"
         />
       </ul>
       <p v-else class="no_result">검색 결과와 일치하는 도시가 없습니다.</p>
