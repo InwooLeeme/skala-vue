@@ -3,25 +3,36 @@ defineProps({ title: String });
 </script>
 
 <template>
-  <section class="dashboard_card">
-    <h1>{{ title }}</h1>
+  <el-card class="dashboard_card" shadow="never">
+    <template #header>
+      <h2>{{ title }}</h2>
+    </template>
     <slot></slot>
-  </section>
+  </el-card>
 </template>
 
 <style scoped>
-.dashboard_card{ 
-    width: 100%;
-    padding: 16px;
-    box-sizing: border-box;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+.dashboard_card {
+  width: 100%;
+  --el-card-padding: 20px;
+  border-radius: var(--el-border-radius-base);
+  box-shadow: var(--el-box-shadow-light);
+}
 
-    h1{
-        font-size: 15px;
-        font-weight: 700;
-        color: #1f2d3d;
-    }
+.dashboard_card :deep(.el-card__header) {
+  padding: 16px 20px;
+  border-bottom-color: var(--el-border-color-lighter);
+}
+
+.dashboard_card :deep(.el-card__body) {
+  padding: var(--el-card-padding);
+}
+
+.dashboard_card h2 {
+  margin: 0;
+  color: var(--el-text-color-primary);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 </style>

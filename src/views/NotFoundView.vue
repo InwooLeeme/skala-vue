@@ -14,64 +14,65 @@ import { RouterLink } from 'vue-router';
 </template>
 
 <style scoped>
-.practice-section{
+.practice-section {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: min(100%, var(--app-content-width));
   min-height: 60vh;
-  padding: 32px 20px 48px;
-  box-sizing: border-box;
-  background-color: #f7f9fb;
-  color: #000;
+  margin: 0 auto;
+  padding: 32px 0 48px;
+  color: var(--el-text-color-primary);
 }
 
-.not_found_card{
+.not_found_card {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   padding: 40px 32px;
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: var(--el-border-radius-base);
+  box-shadow: var(--el-box-shadow-light);
   text-align: center;
 }
 
-.code{
+.code {
   margin: 0;
   font-size: 40px;
   font-weight: 700;
-  color: #4a90d9;
+  color: var(--el-color-primary);
 }
 
-.message{
+.message {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #1f2d3d;
+  color: var(--el-text-color-primary);
 }
 
-.desc{
+.desc {
   margin: 0 0 12px;
   font-size: 13px;
-  color: #64748b;
+  color: var(--el-text-color-secondary);
 }
 
-.back_btn{
-  padding: 9px 16px;
-  background-color: #ffffff;
-  border: 1px solid #c8ccd1;
-  border-radius: 6px;
+.back_btn {
+  padding: 9px 14px;
+  border: 1px solid var(--el-border-color);
+  border-radius: var(--el-border-radius-small);
+  color: var(--el-text-color-regular);
+  background: var(--el-bg-color);
   font-size: 13px;
-  color: #333;
+  font-weight: 600;
   text-decoration: none;
-  transition: background-color 0.15s, border-color 0.15s;
 }
 
-.back_btn:hover{
-  background-color: #f4f6f8;
-  border-color: #aab2bb;
+.back_btn:hover {
+  color: var(--el-color-primary);
+  border-color: var(--el-color-primary-light-5);
+  background: var(--el-color-primary-light-9);
 }
 </style>

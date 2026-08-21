@@ -28,7 +28,7 @@ onMounted(() => {
     </BaseDashboardCard>
 
     <template v-else>
-      <BaseDashboardCard title="📊 전체 통계 요약">
+    <BaseDashboardCard title="전체 통계 요약">
         <div class="stat_grid">
           <div class="stat_item">
             <span class="stat_label">평균 기온</span>
@@ -52,12 +52,12 @@ onMounted(() => {
       <BaseDashboardCard title="🏆 최고 · 최저 기온 도시">
         <div class="extreme_grid">
           <div class="extreme_item hot">
-            <span class="extreme_label">🔥 최고 기온</span>
+            <span class="extreme_label">최고 기온</span>
             <span class="extreme_city">{{ hottestCity.name }}</span>
             <span class="extreme_value">{{ hottestCity.temp }}°C</span>
           </div>
           <div class="extreme_item cold">
-            <span class="extreme_label">❄️ 최저 기온</span>
+            <span class="extreme_label">최저 기온</span>
             <span class="extreme_city">{{ coldestCity.name }}</span>
             <span class="extreme_value">{{ coldestCity.temp }}°C</span>
           </div>
@@ -68,88 +68,97 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.practice-section{
+.practice-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  width: 100%;
-  padding: 32px 20px 48px;
-  box-sizing: border-box;
-  background-color: #f7f9fb;
-  color: #000;
+  gap: 16px;
+  width: min(100%, var(--app-content-width));
+  margin: 0 auto;
+  padding: 24px 0 48px;
+  color: var(--el-text-color-primary);
 }
 
-.stat_grid{
+.stat_grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
-.stat_item{
+.stat_item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 12px 14px;
-  background-color: #f7f9fb;
-  border: 1px solid #e3e6ea;
-  border-radius: 8px;
+  gap: 6px;
+  padding: 15px;
+  background: var(--el-fill-color-lighter);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: var(--el-border-radius-base);
 }
 
-.stat_label{
+.stat_label {
   font-size: 12px;
-  color: #64748b;
+  color: var(--el-text-color-secondary);
 }
 
-.stat_value{
+.stat_value {
+  color: var(--el-text-color-primary);
   font-size: 18px;
   font-weight: 700;
-  color: #1f2d3d;
 }
 
-.extreme_grid{
+.extreme_grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
-.extreme_item{
+.extreme_item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 14px;
-  border-radius: 8px;
-  border: 1.5px solid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid;
+  border-radius: var(--el-border-radius-base);
 }
 
-.extreme_item.hot{
-  border-color: #ff6b6b;
+.extreme_item.hot {
+  border-color: var(--el-color-danger-light-7);
+  background: var(--el-color-danger-light-9);
 }
 
-.extreme_item.cold{
-  border-color: #4a90d9;
+.extreme_item.cold {
+  border-color: var(--el-color-primary-light-7);
+  background: var(--el-color-primary-light-9);
 }
 
-.extreme_label{
+.extreme_label {
   font-size: 12px;
-  color: #64748b;
+  color: var(--el-text-color-secondary);
 }
 
-.extreme_city{
+.extreme_city {
+  color: var(--el-text-color-primary);
   font-size: 15px;
   font-weight: 700;
-  color: #1f2d3d;
 }
 
-.extreme_value{
+.extreme_value {
   font-size: 13px;
-  color: #555;
+  color: var(--el-text-color-regular);
 }
 
-.no_result{
-  padding: 16px;
+.no_result {
+  margin: 0;
+  padding: 28px 16px;
   text-align: center;
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--el-text-color-secondary);
+}
+
+@media (max-width: 560px) {
+  .stat_grid,
+  .extreme_grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

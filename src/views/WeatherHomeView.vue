@@ -40,27 +40,34 @@ watch(selectedCityInfo, (newValue) => {
 </script>
 
 <template>
-<main class="practice-section">
-    <BaseDashboardCard title="🔍도시 검색">
+  <main class="practice-section">
+    <section class="home_intro">
+      <h1>날씨 대시보드</h1>
+      <p>산책할 도시를 검색하고 현재 날씨를 확인하세요.</p>
+    </section>
+
+    <BaseDashboardCard title="도시 검색">
       <SearchBar :search-query="searchQuery" @update-query="searchQuery = $event" />
-      <h3>검색 중인 도시 : {{ searchQuery }}</h3>
+      <p class="search_state">
+        <span v-if="searchQuery">“{{ searchQuery }}” 검색 결과</span>
+        <span v-else>검색어가 없으면 기본 도시 전체를 보여줍니다.</span>
+      </p>
     </BaseDashboardCard>
 
-    <BaseDashboardCard title="지역별 날씨 현황">
-      <p v-if="store.isLoading" class="no_result">날씨 정보를 불러오는 중입니다...</p>
+    <BaseDashboardCard title="검색한 도시 날씨">
+      <p v-if="!store.isLoading" class="result_count">검색 결과 {{ filteredWeatherList.length }}개</p>
+      <el-skeleton v-if="store.isLoading" :rows="4" animated />
       <ul v-else-if="filteredWeatherList.length" class="weather_list_container">
         <WeatherCard
           v-for="obj in filteredWeatherList"
           :key="obj.id"
           :city="obj"
-          :selected="selectedCityInfo?.id === obj.id"
-          @select-card="selectedCityInfo = $event"
           @click-detail="showDetail($event)"
         />
       </ul>
-      <p v-else class="no_result">검색 결과와 일치하는 도시가 없습니다.</p>
+      <el-empty v-else description="검색 결과와 일치하는 도시가 없습니다." :image-size="72" />
       <div class="status_container">
-        <h2 class="status_bar">{{ statusMessage }}</h2>
+        <p class="status_bar">도시 상세보기를 눌러 산책 가이드를 확인해보세요.</p>
       </div>
     </BaseDashboardCard>
   </main>
@@ -68,51 +75,82 @@ watch(selectedCityInfo, (newValue) => {
 
 <style scoped>
 
-.practice-section{
+.practice-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  width: 100%;
-  padding: 32px 20px 48px;
-  box-sizing: border-box;
-  background-color: #f7f9fb;
-  color: #000;
+  gap: 16px;
+  width: min(100%, var(--app-content-width));
+  margin: 0 auto;
+  padding: 24px 0 48px;
+  color: var(--el-text-color-primary);
 }
 
-.task_title{
+.home_intro {
   width: 100%;
+  padding: 10px 4px 2px;
+}
+
+.home_intro h1 {
+  margin: 0 0 7px;
+  color: var(--el-text-color-primary);
+  font-size: clamp(23px, 4vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.home_intro > p:last-child {
   margin: 0;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e3e6ea;
-  letter-spacing: 0.08em;
-  color: #000;
-  font-weight: 600;
-  font-size: 1.25rem;
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
 }
 
-.weather_list_container{
+.search_state {
+  margin: 10px 2px 0;
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.weather_list_container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.status_container{
-  width: 100%;
-  padding-top: 10px;
-  margin-top: 10px;
-  justify-content: center;
-  display: flex;
+.result_count {
+  margin: 0 0 10px;
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
 }
 
-.no_result{
-  padding: 16px;
-  text-align: center;
-  font-size: 13px;
-  color: #94a3b8;
+.status_container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--el-border-color-lighter);
+}
+
+.status_bar {
+  margin: 0;
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+}
+
+.practice-section :deep(.el-skeleton__item) {
+  background: var(--el-fill-color);
+}
+
+@media (max-width: 720px) {
+  .practice-section {
+    padding-top: 16px;
+  }
+
 }
 
 </style>

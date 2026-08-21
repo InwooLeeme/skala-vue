@@ -15,7 +15,7 @@ const stack = ['Vue 3', 'Composition API', 'Vue Router', 'Vite'];
   <main class="practice-section">
     <h1 class="task_title">서비스 소개</h1>
 
-    <BaseDashboardCard title="🌤️ 날씨 대시보드">
+    <BaseDashboardCard title="날씨 대시보드">
       <p class="intro">
         도시별 날씨를 검색하고 카드로 한눈에 비교할 수 있는 날씨 대시보드입니다.
         기온, 풍속, 습도, 구름량을 뱃지로 표시해 현재 상태를 빠르게 파악할 수 있습니다.
@@ -34,7 +34,7 @@ const stack = ['Vue 3', 'Composition API', 'Vue Router', 'Vite'];
       </ol>
     </BaseDashboardCard>
 
-    <BaseDashboardCard title="🛠️ 사용 기술">
+    <BaseDashboardCard title="사용 기술">
       <ul class="tech_list">
         <li v-for="tech in stack" :key="tech" class="tech_tag">{{ tech }}</li>
       </ul>
@@ -49,30 +49,29 @@ const stack = ['Vue 3', 'Composition API', 'Vue Router', 'Vite'];
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  width: 100%;
-  padding: 32px 20px 48px;
-  box-sizing: border-box;
-  background-color: #f7f9fb;
-  color: #000;
+  gap: 16px;
+  width: min(100%, var(--app-content-width));
+  margin: 0 auto;
+  padding: 24px 0 48px;
+  color: var(--el-text-color-primary);
 }
 
 .task_title {
   width: 100%;
   margin: 0;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e3e6ea;
-  letter-spacing: 0.08em;
-  color: #000;
-  font-weight: 600;
+  padding: 2px 2px 12px;
+  border-bottom: 1px solid var(--el-border-color-light);
+  color: var(--el-text-color-primary);
   font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .intro {
   margin: 0;
   font-size: 13px;
   line-height: 1.6;
-  color: #555;
+  color: var(--el-text-color-regular);
 }
 
 .step_list {
@@ -98,7 +97,7 @@ const stack = ['Vue 3', 'Composition API', 'Vue Router', 'Vite'];
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background-color: #4a90d9;
+  background: var(--el-color-primary);
   color: #ffffff;
   font-size: 12px;
   font-weight: 700;
@@ -108,14 +107,14 @@ const stack = ['Vue 3', 'Composition API', 'Vue Router', 'Vite'];
   margin: 0;
   font-size: 13px;
   font-weight: 700;
-  color: #1f2d3d;
+  color: var(--el-text-color-primary);
 }
 
 .step_desc {
   margin: 4px 0 0;
   font-size: 12px;
   line-height: 1.5;
-  color: #555;
+  color: var(--el-text-color-regular);
 }
 
 .tech_list {
@@ -130,25 +129,28 @@ const stack = ['Vue 3', 'Composition API', 'Vue Router', 'Vite'];
 .tech_tag {
   padding: 4px 12px;
   border-radius: 999px;
-  border: 1.5px solid #64748b;
-  color: #64748b;
+  border: 1px solid var(--el-color-primary-light-7);
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
   font-size: 12px;
   font-weight: 600;
 }
 
 .back_btn {
-  padding: 9px 16px;
-  background-color: #ffffff;
-  border: 1px solid #c8ccd1;
-  border-radius: 6px;
+  align-self: flex-start;
+  padding: 9px 14px;
+  border: 1px solid var(--el-border-color);
+  border-radius: var(--el-border-radius-small);
+  color: var(--el-text-color-regular);
+  background: var(--el-bg-color);
   font-size: 13px;
-  color: #333;
+  font-weight: 600;
   text-decoration: none;
-  transition: background-color 0.15s, border-color 0.15s;
 }
 
 .back_btn:hover {
-  background-color: #f4f6f8;
-  border-color: #aab2bb;
+  color: var(--el-color-primary);
+  border-color: var(--el-color-primary-light-5);
+  background: var(--el-color-primary-light-9);
 }
 </style>
