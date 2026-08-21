@@ -1,7 +1,8 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue';
+import { unitSymbolStore } from '@/stores/configStore';
 
 const weatherList = [
   {
@@ -42,6 +43,24 @@ const route = useRoute();
 const router = useRouter();
 const city = ref(null);
 
+const configStore = unitSymbolStore();
+
+const displayTemp = computed(() => {
+  const rawTemp = city.value.temp;
+  if (configStore.unit === 'fahrenheit') {
+    return Math.round((rawTemp * 9) / 5 + 32);
+  }
+  return rawTemp;
+});
+
+const displayWindSpeed = computed(() => {
+  const rawWindSpeed = city.value.data.wind_speed;
+  if (configStore.windSpeedUnit === 'kmh') {
+    return (rawWindSpeed * 3.6).toFixed(1);
+  }
+  return rawWindSpeed;
+});
+
 onMounted(() => {
   city.value = weatherList.find((c) => c.id === route.params.cityId) ?? null;
 });
@@ -53,11 +72,11 @@ onMounted(() => {
       <div class="detail_grid">
         <div class="detail_item">
           <span class="detail_label">현재 기온</span>
-          <span class="detail_value">{{ city.temp }}°C</span>
+          <span class="detail_value">{{ displayTemp }}{{ configStore.unitSymbol }}</span>
         </div>
         <div class="detail_item">
           <span class="detail_label">풍속</span>
-          <span class="detail_value">{{ city.data.wind_speed }} m/s</span>
+          <span class="detail_value">{{ displayWindSpeed }} {{ configStore.windSpeedUnitLabel }}</span>
         </div>
         <div class="detail_item">
           <span class="detail_label">습도</span>

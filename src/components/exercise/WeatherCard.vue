@@ -1,17 +1,38 @@
 <script setup>
-defineProps({ city: Object, selected: Boolean });
+import { computed } from 'vue';
+import { unitSymbolStore } from '@/stores/configStore';
+
+const props = defineProps({ city: Object, selected: Boolean });
 defineEmits(['select-card', 'click-detail']);
+
+const configStore = unitSymbolStore();
+
+const displayTemp = computed(() => {
+  const rawTemp = props.city.temp;
+  if (configStore.unit === 'fahrenheit') {
+    return Math.round((rawTemp * 9) / 5 + 32);
+  }
+  return rawTemp;
+});
+
+const displayWindSpeed = computed(() => {
+  const rawWindSpeed = props.city.data.wind_speed;
+  if (configStore.windSpeedUnit === 'kmh') {
+    return (rawWindSpeed * 3.6).toFixed(1);
+  }
+  return rawWindSpeed;
+});
 </script>
 
 <template>
   <li class="card" :class="{ selected }" @click="$emit('select-card', city)">
     <h1>{{ city.name }} ({{ city.status }})</h1>
     <button class="detail_btn" @click.stop="$emit('click-detail', city)">상세보기</button>
-     <div class="temp">현재 기온 : {{ city.temp }}°C</div>
+     <div class="temp">현재 기온 : {{ displayTemp }}{{ configStore.unitSymbol }}</div>
     <span v-if="city.temp >= 25" class="badge hot">🔥더움 (25도 이상)</span>
     <span v-else class="badge cold">❄️신선함 (25도 미만)</span>
-    <span v-if="city.data.wind_speed >= 5.0" class="badge fast">💨강풍 {{ city.data.wind_speed }} m/s</span>
-    <span v-else class="badge slow">💨약풍 {{ city.data.wind_speed }} m/s</span>
+    <span v-if="city.data.wind_speed >= 5.0" class="badge fast">💨강풍 {{ displayWindSpeed }} {{ configStore.windSpeedUnitLabel }}</span>
+    <span v-else class="badge slow">💨약풍 {{ displayWindSpeed }} {{ configStore.windSpeedUnitLabel }}</span>
     <span v-if="city.data.humidity >= 60" class="badge humid">💧습함 {{ city.data.humidity }}%</span>
     <span v-else class="badge dry">💧쾌적 {{ city.data.humidity }}%</span>
     <span v-if="city.data.clouds >= 50" class="badge cloudy">☁️흐림 {{ city.data.clouds }}%</span>
