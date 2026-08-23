@@ -295,9 +295,11 @@ onMounted(async () => {
             </small>
           </article>
           <article v-else class="time_slot pending">
-            <span>오늘 추천</span>
-            <strong>--</strong>
-            <small>오늘 남은 예보가 없습니다.</small>
+            <span>오늘 추천 종료</span>
+            <el-tag type="info" size="small" effect="light">
+              마감
+            </el-tag>
+            <small>내일 오전 추천을 확인하세요.</small>
           </article>
 
           <article v-if="recommendedTimes.tomorrowMorning" class="time_slot active">
