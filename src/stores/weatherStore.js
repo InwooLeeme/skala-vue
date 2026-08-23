@@ -201,6 +201,7 @@ export const weatherStore = defineStore('weather', () => {
             }
         } catch(e) {
             detailError.value = '상세 데이터를 처리하는 중 오류가 발생했습니다.';
+            console.log(e);
         } finally {
             detailLoading.value = false;
         }
