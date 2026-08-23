@@ -8,7 +8,7 @@ import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
 <template>
   <main class="practice-section">
     <section class="page_intro">
-      <h1>개인 실습 기록</h1>
+      <h1>개인 학습 기록</h1>
       <p>프로젝트를 진행하며 추가로 학습하고 실제 코드에 적용한 내용을 정리했습니다.</p>
     </section>
 

@@ -15,7 +15,7 @@ import UnitToggler from '@/components/UnitToggler.vue'
         <RouterLink to="/stats">날씨 통계</RouterLink>
         <RouterLink to="/about">서비스 소개</RouterLink>
         <RouterLink to="/troubleshooting">트러블슈팅</RouterLink>
-        <RouterLink to="/personal-practice">개인 실습</RouterLink>
+        <RouterLink to="/personal-practice">개인 학습</RouterLink>
       </nav>
       <UnitToggler />
     </header>
