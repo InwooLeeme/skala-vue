@@ -33,13 +33,34 @@ export const weatherStore = defineStore('weather', () => {
     const fetchAll = async () => {
         isLoading.value = true;
         error.value = null;
+
         try{
-            const results = [];
+            const requests = [];
+
             for(const city of CITIES){
-                const data = await fetchWeatherData(city.query);
-                results.push(toCityWeather(city, data));
+                requests.push(fetchWeatherData(city.query));
             }
+
+            const responses = await Promise.allSettled(requests);
+            const results = [];
+            let failedCount = 0;
+
+            for(let index = 0; index < responses.length; index++){
+                const response = responses[index];
+                const city = CITIES[index];
+
+                if(response.status === 'fulfilled'){
+                    results.push(toCityWeather(city, response.value));
+                } else {
+                    failedCount = failedCount + 1;
+                }
+            }
+
             cities.value = results;
+
+            if(failedCount > 0){
+                error.value = new Error(`${failedCount}개 도시의 날씨를 불러오지 못했습니다.`);
+            }
         } catch(e) {
             error.value = e;
         }
@@ -126,50 +147,63 @@ export const weatherStore = defineStore('weather', () => {
         detailLoading.value = true;
         detailError.value = null;
 
-        let forecastData = null;
-        let airData = null;
-        let forecastError = null;
-        let airQualityError = null;
-
         try {
-            forecastData = await fetchForecastDataByCoord({
-                lat: city.lat,
-                lon: city.lon,
-            });
+            const requests = [
+                fetchForecastDataByCoord({
+                    lat: city.lat,
+                    lon: city.lon,
+                }),
+                fetchAirQualityData({
+                    lat: city.lat,
+                    lon: city.lon,
+                }),
+            ];
+
+            const responses = await Promise.allSettled(requests);
+            const forecastResponse = responses[0];
+            const airQualityResponse = responses[1];
+
+            let forecastData = null;
+            let airData = null;
+            let forecastError = null;
+            let airQualityError = null;
+
+            if(forecastResponse.status === 'fulfilled'){
+                forecastData = forecastResponse.value;
+            } else {
+                forecastError = '시간별 날씨 예보를 불러오지 못했습니다.';
+            }
+
+            if(airQualityResponse.status === 'fulfilled'){
+                airData = airQualityResponse.value;
+            } else {
+                airQualityError = '대기질 정보를 불러오지 못했습니다.';
+            }
+
+            let timezoneOffset = 0;
+
+            if (forecastData !== null) {
+                timezoneOffset = forecastData.city.timezone;
+            }
+
+            detailByCity.value[city.id] = {
+                slots: makeForecastSlots(forecastData, airData),
+                currentAir: makeCurrentAir(airData),
+                timezoneOffset: timezoneOffset,
+                sourceErrors: {
+                    forecast: forecastError,
+                    airQuality: airQualityError,
+                },
+            };
+
+            if (forecastData === null && airData === null) {
+                detailError.value = '상세 날씨와 대기질 정보를 불러오지 못했습니다.';
+            }
         } catch(e) {
-            forecastError = '시간별 날씨 예보를 불러오지 못했습니다.';
+            detailError.value = '상세 데이터를 처리하는 중 오류가 발생했습니다.';
+        } finally {
+            detailLoading.value = false;
         }
-
-        try {
-            airData = await fetchAirQualityData({
-                lat: city.lat,
-                lon: city.lon,
-            });
-        } catch(e) {
-            airQualityError = '대기질 정보를 불러오지 못했습니다.';
-        }
-
-        let timezoneOffset = 0;
-
-        if (forecastData !== null) {
-            timezoneOffset = forecastData.city.timezone;
-        }
-
-        detailByCity.value[city.id] = {
-            slots: makeForecastSlots(forecastData, airData),
-            currentAir: makeCurrentAir(airData),
-            timezoneOffset: timezoneOffset,
-            sourceErrors: {
-                forecast: forecastError,
-                airQuality: airQualityError,
-            },
-        };
-
-        if (forecastData === null && airData === null) {
-            detailError.value = '상세 날씨와 대기질 정보를 불러오지 못했습니다.';
-        }
-
-        detailLoading.value = false;
     };
 
     return {
