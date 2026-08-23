@@ -34,8 +34,8 @@ const entries = [
   },
   {
     category: 'UI',
-    status: '보완 예정',
-    statusType: 'warning',
+    status: '해결',
+    statusType: 'success',
     title: 'Element Plus 개편 후 카드 선택 기능 연결 해제',
     symptom:
       '날씨 카드를 클릭해도 선택한 카드의 강조 스타일과 “도시가 선택되었습니다” 상태 문구가 변경되지 않습니다.',
@@ -44,7 +44,7 @@ const entries = [
       '부모 화면에서 `selected` prop과 `select-card` 이벤트 연결이 빠지고 상태 문구가 고정 문장으로 교체됐습니다.',
     ],
     resolution:
-      '`WeatherCard`에서 카드 클릭 시 `select-card`를 발생시키고, 부모에서 `selectedCityInfo`를 갱신하도록 다시 연결할 예정입니다. 상세보기 버튼에는 `.stop`을 적용해 카드 선택 이벤트와 페이지 이동이 동시에 실행되지 않도록 구분합니다.',
+      '`WeatherCard`에서 카드 클릭 시 `select-card`를 발생시키고, 부모에서 Pinia Store의 `selectedCityInfo`를 갱신하도록 다시 연결했습니다. 상세보기 버튼에는 `.stop`을 적용해 카드 선택 이벤트와 페이지 이동을 구분하고, 상세 페이지에서 돌아와도 선택 상태가 유지되도록 했습니다.',
   },
   {
     category: 'Router',

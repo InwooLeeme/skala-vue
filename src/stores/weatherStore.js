@@ -9,6 +9,7 @@ import {
 
 export const weatherStore = defineStore('weather', () => {
     const cities = ref([]);
+    const selectedCityInfo = ref(null);
     const isLoading = ref(false);
     const error = ref(null);
     const detailByCity = ref({});
@@ -29,6 +30,10 @@ export const weatherStore = defineStore('weather', () => {
             wind_speed : data.wind.speed,
         },
     });
+
+    const selectCity = (city) => {
+        selectedCityInfo.value = city;
+    };
 
     const fetchAll = async () => {
         isLoading.value = true;
@@ -209,11 +214,13 @@ export const weatherStore = defineStore('weather', () => {
 
     return {
         cities,
+        selectedCityInfo,
         isLoading,
         error,
         detailByCity,
         detailLoading,
         detailError,
+        selectCity,
         fetchAll,
         fetchCityDetail,
     };

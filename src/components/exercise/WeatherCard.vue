@@ -25,13 +25,13 @@ const displayWindSpeed = computed(() => {
 </script>
 
 <template>
-  <li class="card">
+  <li class="card" :class="{ selected: selected }" @click="$emit('select-card', city)">
     <div class="card_header">
       <div>
         <h2>{{ city.name }}</h2>
       </div>
       <div class="card_actions">
-        <el-button class="detail_btn" type="primary" @click="$emit('click-detail', city)">
+        <el-button class="detail_btn" type="primary" @click.stop="$emit('click-detail', city)">
           상세보기
         </el-button>
       </div>
@@ -89,6 +89,12 @@ const displayWindSpeed = computed(() => {
   border-color: var(--el-color-primary-light-5);
   box-shadow: 0 8px 20px rgba(35, 64, 46, 0.08);
   transform: translateY(-1px);
+}
+
+.card.selected {
+  border-color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+  box-shadow: 0 8px 20px rgba(35, 64, 46, 0.12);
 }
 
 .card_header {

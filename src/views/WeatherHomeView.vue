@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, watch, watchEffect, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue';
 import SearchBar from '@/components/exercise/SearchBar.vue';
@@ -8,10 +9,9 @@ import { weatherStore } from '@/stores/weatherStore';
 
 const router = useRouter();
 const store = weatherStore();
+const { selectedCityInfo } = storeToRefs(store);
 
 const searchQuery = ref('');
-
-const selectedCityInfo = ref(null);
 
 const statusMessage = ref('카드를 클릭하거나 검색해보세요.');
 
@@ -35,7 +35,7 @@ watch(selectedCityInfo, (newValue) => {
   if(!newValue) return;
   statusMessage.value = `${newValue.name}이 선택되었습니다.`;
   console.log(`상태바 문구 변경 : ${statusMessage.value}`);
-})
+}, { immediate: true })
 
 </script>
 
@@ -62,12 +62,14 @@ watch(selectedCityInfo, (newValue) => {
           v-for="obj in filteredWeatherList"
           :key="obj.id"
           :city="obj"
+          :selected="selectedCityInfo?.id === obj.id"
+          @select-card="store.selectCity($event)"
           @click-detail="showDetail($event)"
         />
       </ul>
       <el-empty v-else description="검색 결과와 일치하는 도시가 없습니다." :image-size="72" />
       <div class="status_container">
-        <p class="status_bar">도시 상세보기를 눌러 산책 가이드를 확인해보세요.</p>
+        <p class="status_bar">{{ statusMessage }}</p>
       </div>
     </BaseDashboardCard>
   </main>
