@@ -1,17 +1,45 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue';
 import { unitSymbolStore } from '@/stores/configStore';
 import { weatherStore } from '@/stores/weatherStore';
+import {
+  calculateWalkScore,
+  selectBestWalkTimes,
+  formatWalkTime,
+} from '@/utils/walkGuide';
 
 const route = useRoute();
 const router = useRouter();
 
 const configStore = unitSymbolStore();
 const store = weatherStore();
+const pageLoading = ref(true);
 
 const city = computed(() => store.cities.find((c) => c.id === route.params.cityId) ?? null);
+
+const detail = computed(() => {
+  if (city.value === null) {
+    return null;
+  }
+
+  const cityDetail = store.detailByCity[city.value.id];
+
+  if (cityDetail === undefined) {
+    return null;
+  }
+
+  return cityDetail;
+});
+
+const currentAir = computed(() => {
+  if (detail.value === null) {
+    return null;
+  }
+
+  return detail.value.currentAir;
+});
 
 const displayTemp = computed(() => {
   const rawTemp = city.value.temp;
@@ -29,16 +57,112 @@ const displayWindSpeed = computed(() => {
   return rawWindSpeed;
 });
 
-onMounted(() => {
-  if (!store.cities.length) {
-    store.fetchAll();
+const scoredSlots = computed(() => {
+  const results = [];
+
+  if (detail.value === null) {
+    return results;
+  }
+
+  for (const slot of detail.value.slots) {
+    const guide = calculateWalkScore({
+      feelsLike: slot.feelsLike,
+      rainProbability: slot.rainProbability,
+      windSpeed: slot.windSpeed,
+      humidity: slot.humidity,
+      aqi: slot.aqi,
+    });
+
+    results.push({
+      ...slot,
+      guide: guide,
+    });
+  }
+
+  return results;
+});
+
+const currentGuide = computed(() => {
+  if (city.value === null) {
+    return null;
+  }
+
+  let rainProbability = null;
+  let aqi = null;
+
+  if (scoredSlots.value.length > 0) {
+    rainProbability = scoredSlots.value[0].rainProbability;
+  }
+
+  if (currentAir.value !== null) {
+    aqi = currentAir.value.aqi;
+  }
+
+  return calculateWalkScore({
+    feelsLike: city.value.data.feels_like,
+    rainProbability: rainProbability,
+    windSpeed: city.value.data.wind_speed,
+    humidity: city.value.data.humidity,
+    aqi: aqi,
+  });
+});
+
+const recommendedTimes = computed(() => {
+  if (detail.value === null) {
+    return {
+      today: null,
+      tomorrowMorning: null,
+    };
+  }
+
+  return selectBestWalkTimes(
+    scoredSlots.value,
+    detail.value.timezoneOffset,
+  );
+});
+
+const getTimeLabel = (slot) => {
+  if (slot === null || detail.value === null) {
+    return '';
+  }
+
+  return formatWalkTime(slot.timestamp, detail.value.timezoneOffset);
+};
+
+const getRainPercentage = (slot) => {
+  return Math.round(slot.rainProbability * 100);
+};
+
+const getAqiText = (slot) => {
+  if (slot.aqi === null || slot.aqi === undefined) {
+    return '정보 없음';
+  }
+
+  return slot.aqi;
+};
+
+onMounted(async () => {
+  try {
+    if (store.cities.length === 0) {
+      await store.fetchAll();
+    }
+
+    if (city.value !== null) {
+      await store.fetchCityDetail(city.value);
+    }
+  } finally {
+    pageLoading.value = false;
   }
 });
 </script>
 
 <template>
   <main class="practice-section">
-    <template v-if="city">
+    <BaseDashboardCard v-if="pageLoading" title="상세 정보를 불러오는 중">
+      <el-skeleton :rows="8" animated />
+    </BaseDashboardCard>
+
+    <template v-else-if="city">
       <div class="detail_header">
         <div>
           <div class="detail_title_row">
@@ -67,6 +191,27 @@ onMounted(() => {
             <span class="detail_label">구름량</span>
             <span class="detail_value">{{ city.data.clouds }}%</span>
           </div>
+          <div class="detail_item">
+            <span class="detail_label">초미세먼지 PM2.5</span>
+            <span v-if="currentAir" class="detail_value">
+              {{ currentAir.pm25 }}
+              <small>㎍/㎥</small>
+            </span>
+            <span v-else class="detail_value">--</span>
+          </div>
+          <div class="detail_item">
+            <span class="detail_label">미세먼지 PM10</span>
+            <span v-if="currentAir" class="detail_value">
+              {{ currentAir.pm10 }}
+              <small>㎍/㎥</small>
+            </span>
+            <span v-else class="detail_value">--</span>
+          </div>
+          <div class="detail_item">
+            <span class="detail_label">대기질 지수</span>
+            <span v-if="currentAir" class="detail_value">{{ currentAir.aqi }}</span>
+            <span v-else class="detail_value">--</span>
+          </div>
         </div>
       </BaseDashboardCard>
 
@@ -74,46 +219,49 @@ onMounted(() => {
         <div class="walk_guide_grid">
           <section
             class="walk_summary"
-            :class="{ caution: city.temp >= 28 || city.data.wind_speed >= 5 }"
+            :class="{ caution: currentGuide.score < 75 }"
           >
             <el-tag
-              :type="city.temp >= 28 || city.data.wind_speed >= 5 ? 'warning' : 'success'"
+              :type="currentGuide.tagType"
               effect="light"
               round
             >
-              {{ city.temp >= 28 || city.data.wind_speed >= 5 ? '짧은 산책을 권장해요' : '지금 산책하기 좋아요' }}
+              {{ currentGuide.label }}
             </el-tag>
-            <h2>
-              {{ city.temp >= 28 || city.data.wind_speed >= 5
-                ? '기온이 내려간 뒤 가볍게 걸어보세요'
-                : '현재 날씨라면 편안하게 걸을 수 있어요' }}
-            </h2>
+            <h2>{{ currentGuide.label }}</h2>
             <p>
-              {{ city.temp >= 28
-                ? '기온이 높은 시간에는 물을 챙기고 실제 지면 온도를 확인해 주세요.'
-                : '강수 예보와 미세먼지 데이터를 연결하면 더 정확한 시간 추천을 받을 수 있습니다.' }}
+              {{ currentGuide.complete
+                ? '현재 날씨와 가장 가까운 강수 예보, 대기질을 함께 반영했습니다.'
+                : '불러온 데이터만 반영한 임시 산책 안내입니다.' }}
             </p>
             <div class="walk_facts">
               <el-tag effect="plain">기온 {{ displayTemp }}{{ configStore.unitSymbol }}</el-tag>
               <el-tag effect="plain">바람 {{ displayWindSpeed }} {{ configStore.windSpeedUnitLabel }}</el-tag>
               <el-tag effect="plain">습도 {{ city.data.humidity }}%</el-tag>
+              <el-tag v-if="currentAir" effect="plain">
+                AQI {{ currentAir.aqi }}
+              </el-tag>
             </div>
           </section>
 
           <aside
             class="score_panel"
-            :class="{ caution: city.temp >= 28 || city.data.wind_speed >= 5 }"
+            :class="{ caution: currentGuide.score < 75 }"
           >
             <span class="score_label">현재 환경 점수</span>
-            <strong>{{ city.temp >= 28 || city.data.wind_speed >= 5 ? 58 : 84 }}</strong>
+            <strong>{{ currentGuide.score }}</strong>
             <span class="score_total">/ 100</span>
             <el-progress
-              :percentage="city.temp >= 28 || city.data.wind_speed >= 5 ? 58 : 84"
+              :percentage="currentGuide.score"
               :show-text="false"
               :stroke-width="8"
-              :status="city.temp >= 28 || city.data.wind_speed >= 5 ? 'warning' : 'success'"
+              :status="currentGuide.progressStatus"
             />
-            <p>현재 기온·바람을 기준으로 계산한 MVP 점수입니다.</p>
+            <p>
+              {{ currentGuide.complete
+                ? '기온·강수·바람·습도·대기질을 반영한 점수입니다.'
+                : '현재 확인할 수 있는 데이터만 반영한 점수입니다.' }}
+            </p>
           </aside>
         </div>
 
@@ -121,40 +269,87 @@ onMounted(() => {
         <div class="walk_timeline">
           <article class="time_slot active">
             <span>현재</span>
-            <strong>{{ city.temp >= 28 || city.data.wind_speed >= 5 ? 58 : 84 }}점</strong>
+            <strong>{{ currentGuide.score }}점</strong>
             <el-tag
-              :type="city.temp >= 28 || city.data.wind_speed >= 5 ? 'warning' : 'success'"
+              :type="currentGuide.tagType"
               size="small"
               effect="light"
             >
-              {{ city.temp >= 28 || city.data.wind_speed >= 5 ? '짧게' : '추천' }}
+              {{ currentGuide.shortLabel }}
             </el-tag>
           </article>
-          <article class="time_slot pending">
-            <span>오늘 다음 시간</span>
-            <strong>--</strong>
-            <small>예보 연결 예정</small>
+
+          <article v-if="recommendedTimes.today" class="time_slot active">
+            <span>오늘 {{ getTimeLabel(recommendedTimes.today) }}</span>
+            <strong>{{ recommendedTimes.today.guide.score }}점</strong>
+            <el-tag
+              :type="recommendedTimes.today.guide.tagType"
+              size="small"
+              effect="light"
+            >
+              {{ recommendedTimes.today.guide.shortLabel }}
+            </el-tag>
+            <small>
+              강수 {{ getRainPercentage(recommendedTimes.today) }}%
+              · AQI {{ getAqiText(recommendedTimes.today) }}
+            </small>
           </article>
-          <article class="time_slot pending">
-            <span>내일 오전</span>
+          <article v-else class="time_slot pending">
+            <span>오늘 추천</span>
             <strong>--</strong>
-            <small>예보 연결 예정</small>
+            <small>오늘 남은 예보가 없습니다.</small>
+          </article>
+
+          <article v-if="recommendedTimes.tomorrowMorning" class="time_slot active">
+            <span>내일 {{ getTimeLabel(recommendedTimes.tomorrowMorning) }}</span>
+            <strong>{{ recommendedTimes.tomorrowMorning.guide.score }}점</strong>
+            <el-tag
+              :type="recommendedTimes.tomorrowMorning.guide.tagType"
+              size="small"
+              effect="light"
+            >
+              {{ recommendedTimes.tomorrowMorning.guide.shortLabel }}
+            </el-tag>
+            <small>
+              강수 {{ getRainPercentage(recommendedTimes.tomorrowMorning) }}%
+              · AQI {{ getAqiText(recommendedTimes.tomorrowMorning) }}
+            </small>
+          </article>
+          <article v-else class="time_slot pending">
+            <span>내일 오전 추천</span>
+            <strong>--</strong>
+            <small>추천 예보를 불러오지 못했습니다.</small>
           </article>
         </div>
 
         <el-alert
+          v-if="store.detailError"
           class="data_notice"
-          title="시간별 추천과 미세먼지 점수는 Forecast·Air Pollution API 연결 후 활성화됩니다."
-          type="info"
+          :title="store.detailError"
+          type="error"
           :closable="false"
           show-icon
         />
+        <el-alert
+          v-if="!store.detailError && detail && detail.sourceErrors.forecast"
+          class="data_notice"
+          :title="detail.sourceErrors.forecast"
+          type="warning"
+          :closable="false"
+          show-icon
+        />
+        <el-alert
+          v-if="!store.detailError && detail && detail.sourceErrors.airQuality"
+          class="data_notice"
+          :title="detail.sourceErrors.airQuality"
+          type="warning"
+          :closable="false"
+          show-icon
+        />
+
+        <p class="source_notice">날씨: OpenWeather · 대기질: Open-Meteo / CAMS</p>
       </BaseDashboardCard>
     </template>
-
-    <BaseDashboardCard v-else-if="store.isLoading" title="불러오는 중">
-      <el-skeleton :rows="6" animated />
-    </BaseDashboardCard>
 
     <BaseDashboardCard v-else title="도시를 찾을 수 없습니다">
       <el-empty :description="`요청한 도시(${route.params.cityId})의 날씨 정보를 찾을 수 없습니다.`" />
@@ -232,6 +427,12 @@ onMounted(() => {
   color: var(--el-text-color-primary);
   font-size: 18px;
   font-weight: 700;
+}
+
+.detail_value small {
+  color: var(--el-text-color-secondary);
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .walk_guide_grid {
@@ -364,6 +565,13 @@ onMounted(() => {
 
 .data_notice {
   margin-top: 12px;
+}
+
+.source_notice {
+  margin: 12px 2px 0;
+  color: var(--el-text-color-secondary);
+  font-size: 10px;
+  text-align: right;
 }
 
 .empty_action {
