@@ -16,13 +16,23 @@ export const weatherStore = defineStore('weather', () => {
     const detailLoading = ref(false);
     const detailError = ref(null);
 
+    const getWeatherStatus = (weather) => {
+        if (weather.id === 800) return '맑음';
+        if (weather.id === 801) return '구름 조금';
+        if (weather.id === 802) return '구름 낌';
+        if (weather.id === 803) return '구름 많음';
+        if (weather.id === 804) return '흐림';
+
+        return weather.description;
+    };
+
     const toCityWeather = (city, data) => ({
         id : city.id,
         name : city.name,
         lat : data.coord.lat,
         lon : data.coord.lon,
         temp : Math.round(data.main.temp),
-        status : data.weather[0].description,
+        status : getWeatherStatus(data.weather[0]),
         data : {
             feels_like : data.main.feels_like,
             clouds : data.clouds.all,
@@ -126,7 +136,7 @@ export const weatherStore = defineStore('weather', () => {
                 humidity: item.main.humidity,
                 rainProbability: item.pop,
                 windSpeed: item.wind.speed,
-                weather: item.weather[0].description,
+                weather: getWeatherStatus(item.weather[0]),
                 pm25: pm25,
                 pm10: pm10,
                 aqi: aqi,
