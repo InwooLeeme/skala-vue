@@ -4,7 +4,6 @@ import TroubleshootingCard from '@/components/troubleshooting/TroubleshootingCar
 
 const entries = [
   {
-    date: '2026-08-21',
     category: 'Store',
     status: '해결',
     statusType: 'success',
@@ -18,11 +17,8 @@ const entries = [
     ],
     resolution:
       'API 호출을 `await`로 기다린 뒤 응답을 `toCityWeather()`에서 화면용 객체로 변환하고, 완성된 배열을 `cities.value`에 한 번에 대입했습니다. Store와 화면에서 사용하는 함수명도 `fetchAll`로 통일했습니다.',
-    lesson:
-      '비동기 요청 문제를 확인할 때는 API 응답 여부와 반응형 상태 대입 여부를 분리해서 확인해야 한다는 점을 배웠습니다.',
   },
   {
-    date: '2026-08-21',
     category: 'API',
     status: '해결',
     statusType: 'success',
@@ -35,11 +31,8 @@ const entries = [
     ],
     resolution:
       '환경 변수에 등록한 API Key와 인증 상태를 다시 확인해 401 오류를 해결했습니다. 요청이 정상화된 뒤 Store에 도시 날씨가 저장되고 목록이 표시되는 것을 확인했습니다.',
-    lesson:
-      '로딩, 요청 실패, 정상적인 빈 결과는 서로 다른 상태이므로 사용자 화면에서도 구분해서 보여줘야 원인을 빠르게 찾을 수 있습니다.',
   },
   {
-    date: '2026-08-21',
     category: 'UI',
     status: '보완 예정',
     statusType: 'warning',
@@ -52,8 +45,21 @@ const entries = [
     ],
     resolution:
       '`WeatherCard`에서 카드 클릭 시 `select-card`를 발생시키고, 부모에서 `selectedCityInfo`를 갱신하도록 다시 연결할 예정입니다. 상세보기 버튼에는 `.stop`을 적용해 카드 선택 이벤트와 페이지 이동이 동시에 실행되지 않도록 구분합니다.',
-    lesson:
-      'UI 라이브러리로 Template을 다시 작성할 때 디자인뿐 아니라 기존 props와 emit의 연결도 함께 점검해야 합니다.',
+  },
+  {
+    category: 'Router',
+    status: '해결',
+    statusType: 'success',
+    title: '상세 페이지 직접 접근 시 빈 결과 화면이 먼저 노출됨',
+    symptom:
+      '상세 페이지 URL로 직접 접근하면 날씨 데이터를 불러오는 동안 “도시를 찾을 수 없습니다” 화면이 잠깐 표시됐습니다.',
+    causes: [
+      '첫 화면이 렌더링되는 시점에는 Store의 도시 목록이 비어 있어 `city` 계산 결과가 `null`이었습니다.',
+      '`onMounted()`에서 `fetchAll()`의 완료를 기다리지 않아 로딩 상태와 실제 빈 결과 상태를 구분할 수 없었습니다.',
+      'Template에서 도시 데이터보다 로딩 상태를 먼저 확인하지 않아 빈 결과 화면이 먼저 선택됐습니다.',
+    ],
+    resolution:
+      '`pageLoading` 상태를 추가하고 `onMounted()`를 비동기 함수로 변경했습니다. `fetchAll()`과 `fetchCityDetail()`이 끝날 때까지 `await`로 기다린 뒤 로딩 상태를 해제하고, Template에서도 로딩 화면을 가장 먼저 확인하도록 순서를 변경했습니다.',
   },
 ];
 </script>
@@ -62,7 +68,7 @@ const entries = [
   <main class="practice-section">
     <section class="page_intro">
       <h1 class="task_title">트러블슈팅 기록</h1>
-      <p>개발 과정에서 발생한 문제를 증상, 원인, 해결 과정과 배운 점으로 나누어 기록했습니다.</p>
+      <p>개발 과정에서 발생한 문제를 증상, 원인, 해결 과정으로 나누어 기록했습니다.</p>
       <el-tag type="info" effect="plain" round>총 {{ entries.length }}건</el-tag>
     </section>
 

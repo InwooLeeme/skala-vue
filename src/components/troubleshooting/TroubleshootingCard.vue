@@ -12,11 +12,8 @@ defineProps({
 <template>
   <BaseDashboardCard class="troubleshooting_card" :title="entry.title">
     <div class="entry_meta">
-      <div class="tag_group">
-        <el-tag type="info" effect="plain" size="small">{{ entry.category }}</el-tag>
-        <el-tag :type="entry.statusType" effect="light" size="small">{{ entry.status }}</el-tag>
-      </div>
-      <time class="entry_date" :datetime="entry.date">{{ entry.date }}</time>
+      <el-tag type="info" effect="plain" size="small">{{ entry.category }}</el-tag>
+      <el-tag :type="entry.statusType" effect="light" size="small">{{ entry.status }}</el-tag>
     </div>
 
     <section class="entry_section">
@@ -38,10 +35,6 @@ defineProps({
       </p>
     </section>
 
-    <section class="entry_section lesson_section">
-      <h3 class="section_label">배운 점</h3>
-      <p class="entry_text">{{ entry.lesson }}</p>
-    </section>
   </BaseDashboardCard>
 </template>
 
@@ -53,25 +46,12 @@ defineProps({
 .entry_meta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.tag_group {
-  display: flex;
-  flex-wrap: wrap;
   gap: 6px;
-}
-
-.entry_date {
-  flex-shrink: 0;
-  font-size: 11px;
-  color: var(--el-text-color-secondary);
+  margin-bottom: 14px;
 }
 
 .entry_section + .entry_section {
-  margin-top: 18px;
+  margin-top: 14px;
 }
 
 .section_label {
@@ -125,16 +105,4 @@ defineProps({
   background: var(--el-color-warning-light-9);
 }
 
-.lesson_section {
-  padding-top: 16px;
-  border-top: 1px solid var(--el-border-color-lighter);
-}
-
-@media (max-width: 560px) {
-  .entry_meta {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 8px;
-  }
-}
 </style>
