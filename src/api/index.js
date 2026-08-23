@@ -20,3 +20,16 @@ export const fetchWeatherData = async (cityQuery) => {
     const response = await axios.get(url);
     return response.data;
 };
+
+export const fetchForecastDataByCoord = async ({ lat, lon }) => {
+    const request_url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${api_key}&units=metric&lang=kr`;
+    const response = await axios.get(request_url);
+    return response.data;
+};
+
+// API 공식 문서 : https://open-meteo.com/en/docs/air-quality-api#data_sources
+export const fetchAirQualityData = async ({ lat, lon }) => {
+  const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm2_5,pm10,us_aqi&hourly=pm2_5,pm10,us_aqi&timezone=GMT&forecast_days=3`;
+  const response = await axios.get(url);
+  return response.data;
+};
