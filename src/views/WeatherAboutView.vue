@@ -1,14 +1,30 @@
 <script setup>
-import { RouterLink } from 'vue-router';
-import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue';
+import { RouterLink } from 'vue-router'
+import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
 
 const steps = [
   { title: '도시 검색', desc: '검색창에 도시 이름을 입력하면 실시간으로 목록이 좁혀집니다.' },
-  { title: '날씨 카드 확인', desc: '카드에서 현재 기온과 강풍·습도·구름 상태 뱃지를 한눈에 확인합니다.' },
-  { title: '상세보기', desc: '카드를 클릭하거나 상세보기 버튼을 눌러 해당 도시의 날씨를 자세히 확인합니다.' },
-];
+  {
+    title: '날씨 카드 확인',
+    desc: '카드에서 현재 기온과 강풍·습도·구름 상태 뱃지를 한눈에 확인합니다.',
+  },
+  {
+    title: '상세보기',
+    desc: '상세보기 버튼을 눌러 해당 도시의 날씨와 산책 가이드를 확인합니다.',
+  },
+]
 
-const stack = ['Vue 3', 'Composition API', 'Vue Router', 'Vite'];
+const stack = [
+  'Vue 3',
+  'Composition API',
+  'Vue Router',
+  'Pinia',
+  'Axios',
+  'Vite',
+  'Element Plus',
+  'OpenWeather',
+  'Open-Meteo',
+]
 </script>
 
 <template>
@@ -17,8 +33,8 @@ const stack = ['Vue 3', 'Composition API', 'Vue Router', 'Vite'];
 
     <BaseDashboardCard title="날씨 대시보드">
       <p class="intro">
-        도시별 날씨를 검색하고 카드로 한눈에 비교할 수 있는 날씨 대시보드입니다.
-        기온, 풍속, 습도, 구름량을 뱃지로 표시해 현재 상태를 빠르게 파악할 수 있습니다.
+        도시별 날씨를 검색하고 카드로 한눈에 비교할 수 있는 날씨 대시보드입니다. 기온, 풍속, 습도,
+        구름량을 뱃지로 표시해 현재 상태를 빠르게 파악할 수 있습니다.
       </p>
     </BaseDashboardCard>
 
